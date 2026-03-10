@@ -1,124 +1,162 @@
 <!DOCTYPE html>
-<html lang="pt-pt">
+<html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FIFA DATABASE PRO v5.1</title>
+    <title>FIFA DATABASE PRO</title>
     <style>
-        :root { --bg: #0d0d0f; --card: #16161a; --neon: #00ff87; --gold: #ffd700; --silver: #c0c0c0; --bronze: #cd7f32; --danger: #ff4444; --text: #ffffff; --blue: #00d4ff; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 1100px; }
-        header { text-align: center; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; cursor: pointer; }
+        body { background: #0d0d0f; color: #fff; font-family: sans-serif; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 1000px; }
+        header { text-align: center; border-bottom: 1px solid #333; padding: 10px; cursor: pointer; }
+        .neon { color: #00ff87; }
         
-        /* Tabela Cores */
-        .pos-1 { background: rgba(255, 215, 0, 0.1) !important; color: var(--gold); }
-        .pos-last { background: rgba(255, 68, 68, 0.1) !important; }
-        
-        #adminPanel { display: none; background: #1a1a1e; padding: 15px; border-radius: 10px; border: 1px solid var(--neon); margin-bottom: 20px; }
-        .btn { padding: 10px; border-radius: 5px; cursor: pointer; border: none; font-weight: bold; text-transform: uppercase; font-size: 10px; margin: 2px; }
-        .btn-green { background: var(--neon); color: #000; }
-        .btn-blue { background: var(--blue); color: #fff; }
-        
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
-        .tab-btn { background: #222; color: #fff; padding: 10px 20px; border-radius: 20px; border: none; cursor: pointer; font-weight: bold; }
-        .tab-btn.active { background: var(--neon); color: #000; }
+        /* Cores de Posição */
+        .g1 { background: rgba(255, 215, 0, 0.1); color: #ffd700; }
+        .glast { background: rgba(255, 68, 68, 0.1); color: #ff4444; }
 
-        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
-        th { background: #222; color: #888; font-size: 10px; padding: 12px; text-transform: uppercase; }
-        td { padding: 12px 8px; border-bottom: 1px solid #222; text-align: center; font-size: 14px; }
-        .nome-player { text-align: left; font-weight: bold; display: flex; align-items: center; gap: 8px; }
-        .team-logo { width: 24px; height: 24px; object-fit: contain; border-radius: 4px; background: #000; }
+        #admin { display: none; background: #1a1a1e; padding: 15px; border: 1px solid #00ff87; border-radius: 10px; margin: 15px 0; }
+        .btn { padding: 10px; border-radius: 5px; border: none; font-weight: bold; cursor: pointer; margin: 2px; text-transform: uppercase; font-size: 10px; }
+        .btn-g { background: #00ff87; color: #000; }
+        .btn-b { background: #00d4ff; color: #fff; }
 
-        /* Galeria Estilizada */
-        .gallery-section { display: none; flex-direction: column; gap: 30px; width: 100%; }
-        .season-block { background: var(--card); border-radius: 15px; padding: 20px; border: 1px solid #333; }
-        .season-title { color: var(--neon); font-size: 1.2rem; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
-        .podium-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
+        .tabs { display: flex; gap: 5px; justify-content: center; margin: 15px 0; }
+        .tab-btn { background: #222; color: #fff; padding: 10px 15px; border-radius: 20px; border: none; cursor: pointer; font-size: 12px; }
+        .tab-btn.active { background: #00ff87; color: #000; }
+
+        table { width: 100%; border-collapse: collapse; background: #16161a; border-radius: 10px; overflow: hidden; }
+        th { background: #222; color: #888; font-size: 10px; padding: 10px; }
+        td { padding: 12px 5px; border-bottom: 1px solid #222; text-align: center; }
+        .t-logo { width: 20px; height: 20px; vertical-align: middle; margin-right: 5px; border-radius: 3px; }
+
+        /* Galeria */
+        .season-box { background: #16161a; border-radius: 10px; padding: 15px; margin-bottom: 20px; border: 1px solid #333; }
+        .p-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 10px; }
+        .p-card { background: #222; padding: 10px; border-radius: 8px; text-align: center; border-top: 3px solid #444; }
         
-        .podium-card { background: #1c1c21; border-radius: 10px; padding: 15px; text-align: center; border: 1px solid #222; position: relative; }
-        .podium-card img { width: 60px; height: 60px; object-fit: contain; margin-bottom: 10px; }
-        .medal { font-size: 1.5rem; display: block; margin-bottom: 5px; }
-        .podium-1 { border-top: 4px solid var(--gold); }
-        .podium-2 { border-top: 4px solid var(--silver); }
-        .podium-3 { border-top: 4px solid var(--bronze); }
-        .podium-last { border-top: 4px solid var(--danger); opacity: 0.8; }
-
-        .row-edit { display: flex; gap: 5px; margin-bottom: 10px; flex-wrap: wrap; background: #25252b; padding: 10px; border-radius: 5px; align-items: center; }
-        .row-edit input { background: #000; border: 1px solid #444; color: #fff; padding: 6px; border-radius: 3px; font-size: 11px; }
+        .row-ed { display: flex; gap: 5px; margin-bottom: 5px; flex-wrap: wrap; background: #222; padding: 10px; border-radius: 5px; }
+        input { background: #000; border: 1px solid #444; color: #fff; padding: 5px; border-radius: 3px; width: 45px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header onclick="acesso()">
-        <h1>FIFA <span style="color:var(--neon)">DATABASE</span></h1>
-        <p style="font-size:10px; color:#666">v5.1 - HALL DA FAMA & VERGONHA</p>
+    <header onclick="login()">
+        <h1>FIFA <span class="neon">DATABASE</span></h1>
+        <p style="font-size:10px; color:#555">v5.2 - FIX</p>
     </header>
 
-    <div id="adminPanel">
-        <button class="btn btn-blue" onclick="exportar()">📥 Backup</button>
-        <button class="btn btn-blue" onclick="importar()">📤 Restaurar</button>
-        <div id="editor"></div>
-        <button onclick="add()" class="btn btn-green" style="width:100%">+ Novo Jogador</button>
-        <button onclick="salvar()" class="btn btn-green" style="width:100%; margin-top:15px; height:40px">Salvar Alterações</button>
-        <button onclick="encerrar()" class="btn" style="background:#400; color:#f66; width:100%; margin-top:5px">Fechar Temporada</button>
+    <div id="admin">
+        <button class="btn btn-b" onclick="exp()">Backup</button>
+        <button class="btn btn-b" onclick="imp()">Restaurar</button>
+        <div id="ed-lista"></div>
+        <button onclick="add()" class="btn btn-g" style="width:100%">+ Jogador</button>
+        <button onclick="save()" class="btn btn-g" style="width:100%; margin-top:10px">Salvar Alterações</button>
+        <button onclick="finish()" class="btn" style="background:#400; color:#f66; width:100%; margin-top:5px">Fechar Época</button>
     </div>
 
     <div class="tabs">
-        <button id="tabelaBtn" class="tab-btn active" onclick="tab('tabela')">TABELA</button>
-        <button id="galeriaBtn" class="tab-btn" onclick="tab('galeria')">GALERIA</button>
+        <button id="bt-t" class="tab-btn active" onclick="tab('t')">TABELA</button>
+        <button id="bt-g" class="tab-btn" onclick="tab('g')">GALERIA</button>
     </div>
 
-    <div id="contentTabela">
-        <select id="view" onchange="mudarView(this.value)" style="width:100%; padding:12px; background:#16161a; color:var(--neon); border:1px solid #333; border-radius:8px; margin-bottom:15px;"></select>
+    <div id="p-tabela">
+        <select id="sel-view" onchange="setView(this.value)" style="width:100%; padding:10px; background:#222; color:#fff; border-radius:5px; margin-bottom:10px;"></select>
         <div style="overflow-x:auto">
             <table>
-                <thead><tr><th>POS</th><th style="text-align:left">JOGADOR</th><th>PTS</th><th>V</th><th>E</th><th>D</th><th>GP</th><th>GC</th><th style="color:var(--gold)">FORÇA</th></tr></thead>
+                <thead><tr><th>POS</th><th style="text-align:left">JOGADOR</th><th>PTS</th><th>V</th><th>GP</th><th>GS</th><th>FORÇA</th></tr></thead>
                 <tbody id="tbody"></tbody>
             </table>
         </div>
     </div>
 
-    <div id="contentGaleria" class="gallery-section"></div>
+    <div id="p-galeria" style="display:none"></div>
 </div>
 
 <script>
-    const KEY = 'fifa_ultimate_v51';
-    let db = JSON.parse(localStorage.getItem(KEY)) || { atual: [], historico: [] };
-    let modo = 'atual';
+    const K = 'fifa_v52_stable';
+    let db = JSON.parse(localStorage.getItem(K)) || { atual: [], hist: [] };
+    let curMod = 'atual';
 
-    function acesso() { if(prompt("Senha:") === '123') document.getElementById('adminPanel').style.display='block'; }
+    function login() { if(prompt("Senha:") === '123') document.getElementById('admin').style.display='block'; }
 
     function tab(t) {
-        document.getElementById('contentTabela').style.display = t === 'tabela' ? 'block' : 'none';
-        document.getElementById('contentGaleria').style.display = t === 'galeria' ? 'flex' : 'none';
-        document.getElementById('tabelaBtn').className = t === 'tabela' ? 'tab-btn active' : 'tab-btn';
-        document.getElementById('galeriaBtn').className = t === 'galeria' ? 'tab-btn active' : 'tab-btn';
-        if(t === 'galeria') renderGaleria();
+        document.getElementById('p-tabela').style.display = t === 't' ? 'block' : 'none';
+        document.getElementById('p-galeria').style.display = t === 'g' ? 'block' : 'none';
+        document.getElementById('bt-t').className = t === 't' ? 'tab-btn active' : 'tab-btn';
+        document.getElementById('bt-g').className = t === 'g' ? 'tab-btn active' : 'tab-btn';
+        if(t === 'g') renderG();
     }
 
     function render() {
-        const menu = document.getElementById('view');
-        menu.innerHTML = '<option value="atual">Temporada Atual</option>';
-        db.historico.forEach((h, i) => menu.innerHTML += `<option value="${i}">${h.nome}</option>`);
+        const s = document.getElementById('sel-view');
+        s.innerHTML = '<option value="atual">Temporada Atual</option>';
+        db.hist.forEach((h, i) => s.innerHTML += `<option value="${i}">${h.n}</option>`);
 
-        let lista = modo === 'atual' ? [...db.atual] : [...db.historico[modo].dados];
-        lista.sort((a,b) => ((b.v*3)+b.e) - ((a.v*3)+a.e) || (b.gp-b.gc) - (a.gp-a.gc));
+        let l = curMod === 'atual' ? [...db.atual] : [...db.hist[curMod].d];
+        l.sort((a,b) => ((b.v*3)+b.e) - ((a.v*3)+a.e) || (b.gp-b.gc) - (a.gp-a.gc));
 
-        const body = document.getElementById('tbody');
-        body.innerHTML = lista.map((j, i) => {
+        document.getElementById('tbody').innerHTML = l.map((j, i) => {
             let pts = (j.v*3)+j.e;
-            let forca = ((j.gp * 3.5) - (j.gc * 2.5)).toFixed(1);
-            let classe = (i === 0) ? "pos-1" : (i === lista.length - 1 && lista.length > 2 ? "pos-last" : "");
-            return `<tr class="${classe}">
-                <td>${i+1}º</td>
-                <td class="nome-player"><img src="${j.foto || 'https://cdn-icons-png.flaticon.com/512/53/53254.png'}" class="team-logo">${j.nome}</td>
-                <td style="color:var(--neon)">${pts}</td><td>${j.v}</td><td>${j.e}</td><td>${j.d}</td>
-                <td>${j.gp}</td><td>${j.gc}</td><td style="color:var(--gold)">${forca}</td>
-            </tr>`;
+            let f = ((j.gp*3.5)-(j.gc*2.5)).toFixed(1);
+            let cl = i===0 ? 'g1' : (i===l.length-1 && l.length>2 ? 'glast' : '');
+            return `<tr class="${cl}"><td>${i+1}º</td><td style="text-align:left"><img src="${j.img||'https://cdn-icons-png.flaticon.com/512/53/53254.png'}" class="t-logo">${j.n}</td><td>${pts}</td><td>${j.v}</td><td>${j.gp}</td><td>${j.gc}</td><td style="font-weight:bold">${f}</td></tr>`;
         }).join('');
 
-        document.getElementById('editor').innerHTML = db.atual.map((j, i) => `
-            <div class="row-edit">
-                <input style="width:100px" type="text" value="${j.nome}" onchange="db.atual[${i}].nome=this.value">
-                <input style="flex:1" type="text" placeholder="URL Escudo" value="${
+        document.getElementById('ed-lista').innerHTML = db.atual.map((j, i) => `
+            <div class="row-ed">
+                <input style="width:80px" type="text" value="${j.n}" onchange="db.atual[${i}].n=this.value">
+                <input style="width:100px" type="text" placeholder="URL Img" value="${j.img||''}" onchange="db.atual[${i}].img=this.value">
+                V<input type="number" value="${j.v}" onchange="db.atual[${i}].v=parseInt(this.value)">
+                E<input type="number" value="${j.e||0}" onchange="db.atual[${i}].e=parseInt(this.value)">
+                D<input type="number" value="${j.d||0}" onchange="db.atual[${i}].d=parseInt(this.value)">
+                GP<input type="number" value="${j.gp}" onchange="db.atual[${i}].gp=parseInt(this.value)">
+                GS<input type="number" value="${j.gc}" onchange="db.atual[${i}].gc=parseInt(this.value)">
+                <button onclick="db.atual.splice(${i},1);save()" style="color:red;background:none;border:none">X</button>
+            </div>`).join('');
+    }
+
+    function renderG() {
+        const d = document.getElementById('p-galeria');
+        d.innerHTML = db.hist.map(h => {
+            const p = h.d;
+            return `
+            <div class="season-box">
+                <div style="color:#00ff87; font-weight:bold">${h.n}</div>
+                <div class="p-grid">
+                    <div class="p-card" style="border-color:#ffd700">👑<br><b>${p[0].n}</b><br><small>CAMPEÃO</small></div>
+                    ${p[1]?`<div class="p-card" style="border-color:#c0c0c0">🥈<br><b>${p[1].n}</b><br><small>VICE</small></div>`:''}
+                    ${p[2]?`<div class="p-card" style="border-color:#cd7f32">🥉<br><b>${p[2].n}</b><br><small>3º LUGAR</small></div>`:''}
+                    ${p.length>3?`<div class="p-card" style="border-color:#ff4444">🤡<br><b>${p[p.length-1].n}</b><br><small>LANTERNA</small></div>`:''}
+                </div>
+            </div>`;
+        }).reverse().join('') || "<p>Sem histórico.</p>";
+    }
+
+    function setView(v) { curMod = v; render(); }
+    function save() { localStorage.setItem(K, JSON.stringify(db)); render(); }
+    function add() { db.atual.push({n: "Novo", v:0, e:0, d:0, gp:0, gc:0, img: ""}); render(); }
+    function exp() { 
+        let a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([JSON.stringify(db)], {type:'application/json'}));
+        a.download = 'fifa.json'; a.click();
+    }
+    function imp() {
+        let f = document.createElement('input'); f.type='file';
+        f.onchange = e => {
+            let r = new FileReader(); r.readAsText(e.target.files[0]);
+            r.onload = ev => { db = JSON.parse(ev.target.result); save(); location.reload(); };
+        }; f.click();
+    }
+    function finish() {
+        let n = prompt("Nome da Época:");
+        if(n && db.atual.length > 0) {
+            db.atual.sort((a,b) => ((b.v*3)+b.e) - ((a.v*3)+a.e) || (b.gp-b.gc) - (a.gp-a.gc));
+            db.hist.push({ n: n, d: JSON.parse(JSON.stringify(db.atual)) });
+            db.atual = db.atual.map(j => ({...j, v:0, e:0, d:0, gp:0, gc:0}));
+            save();
+        }
+    }
+    render();
+</script>
+</body>
+</html>
